@@ -39,9 +39,11 @@ static kindDefinition endfKinds[] = {
 };
 
 
-static int makeENDFTagEntry (const char *name, int kindIndex, int parentCorkIndex)
+static int makeENDFTagEntry (const char *mat, const char *mf, const char *mt, int kindIndex, int parentCorkIndex)
 {
 	tagEntryInfo e;
+  char name[30];
+  snprintf(name, 20, ">%s/%s/%s", mat, mf, mt);
 	initTagEntry (&e, name, kindIndex);
 	e.extensionFields.scopeIndex = parentCorkIndex;
 	return makeTagEntry (&e);
@@ -65,37 +67,38 @@ static void findENDFTags(void)
 
 	while ((line = readLineFromInputFile ()) != NULL)
 	{
-		size_t len = strlen ((char *)line);
-		if (len != 75)
-			continue;
 
-		char mat[5] = { line[67], line[68], line[69], line[70], '\0' };
-		char mf[3]  = { line[71], line[72], '\0'};
-		char mt[4]  = { line[73], line[74], line[75], '\0'};
+		char mat[5] = { line[66], line[67], line[68], line[69], '\0' };
+		char mf[3]  = { line[70], line[71], '\0'};
+		char mt[4]  = { line[72], line[73], line[74], '\0'};
 
-		if (strcmp (mat, last_mat))
+    if (!strcmp(mt, "  0")) {
+			memcpy (last_mt, mt, 3);
+      continue;
+    }
+		if (strcmp (mat, last_mat) && strcmp(mat, "  -1"))
 		{
 			if (last_mat_index != CORK_NIL)
 				setEndLine (last_mat_index, getInputLineNumber ());
-			last_mat_index = makeENDFTagEntry (mat, K_MAT, CORK_NIL);
+			last_mat_index = makeENDFTagEntry (mat, mf, mt, K_MAT, CORK_NIL);
 			memcpy (last_mat, mat, 4);
 			last_mf[0] = '\0';
 			last_mt[0] = '\0';
 		}
 
-		if (strcmp (mf, last_mf))
+		if (strcmp (mf, last_mf) && strcmp(mf, " 0"))
 		{
 			if (last_mf_index != CORK_NIL)
 				setEndLine (last_mf_index, getInputLineNumber ());
 			setEndLine (last_mf_index, getInputLineNumber ());
-			last_mf_index = makeENDFTagEntry (mf, K_MF, last_mat_index);
+			last_mf_index = makeENDFTagEntry (mat, mf, mt, K_MF, last_mat_index);
 			memcpy (last_mf, mf, 2);
 			last_mt[0] = '\0';
 		}
 
 		if (strcmp (mt, last_mt))
 		{
-			makeENDFTagEntry (mt, K_MT, last_mf_index);
+			makeENDFTagEntry (mat, mf, mt, K_MT, last_mf_index);
 			memcpy (last_mt, mt, 3);
 		}
 	}
