@@ -43,7 +43,7 @@ static int makeENDFTagEntry (const char *mat, const char *mf, const char *mt, in
 {
 	tagEntryInfo e;
   char name[30];
-  snprintf(name, 20, ">%s/%s/%s", mat, mf, mt);
+  snprintf(name, 20, ">%s/%s", mf, mt);
 	initTagEntry (&e, name, kindIndex);
 	e.extensionFields.scopeIndex = parentCorkIndex;
 	return makeTagEntry (&e);
