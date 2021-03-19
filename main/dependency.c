@@ -17,6 +17,7 @@
 #include "options.h"
 #include "parse_p.h"
 #include "read.h"
+#include "read_p.h"
 #include "routines.h"
 #include "subparser.h"
 #include "subparser_p.h"
@@ -279,6 +280,8 @@ extern void leaveSubparser(void)
 
 extern bool doesSubparserRun (void)
 {
+	if (getLanguageForBaseParser () == getInputLanguage())
+		return false;
 	return subparserDepth;
 }
 
@@ -286,6 +289,19 @@ extern slaveParser *getFirstSlaveParser (struct slaveControlBlock *scb)
 {
 	if (scb)
 		return scb->slaveParsers;
+	return NULL;
+}
+
+extern subparser *getLanguageSubparser (langType sublang,
+										bool including_none_crafted_parser)
+{
+	subparser *s;
+
+	foreachSubparser (s, including_none_crafted_parser)
+	{
+		if (getSubparserLanguage (s) == sublang)
+			return s;
+	}
 	return NULL;
 }
 

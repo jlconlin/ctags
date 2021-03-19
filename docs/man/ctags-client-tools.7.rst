@@ -3,11 +3,11 @@
 ==============================================================
 ctags-client-tools
 ==============================================================
---------------------------------------------------------------------------------
+
 Hints for developing a tool using ctags command and tags output
---------------------------------------------------------------------------------
-:Version: 0.0.0
-:Manual group: Universal-ctags
+
+:Version: 5.9.0
+:Manual group: Universal Ctags
 :Manual section: 7
 
 SYNOPSIS
@@ -47,8 +47,8 @@ The value, "2", associated with the pseudo tag "TAG_PROGRAM_NAME", is
 used in the field for input file. The description, "Derived from
 Exuberant Ctags", is used in the field for pattern.
 
-Universal-ctags extends the naming scheme of the classical pseudo-tags
-available in Exuberant-ctags for emitting language specific
+Universal Ctags extends the naming scheme of the classical pseudo-tags
+available in Exuberant Ctags for emitting language specific
 information as pseudo tags::
 
 	!_{pseudo-tag-name}!{language-name}	{associated-value}	/{description}/
@@ -82,7 +82,7 @@ Options for Pseudo-tags
 
 	Running ctags with ``--list-pseudo-tags`` option
 	lists available pseudo-tags. Some of pseudo-tags newly introduced
-	in Universal-ctags project are disabled by default. Use
+	in Universal Ctags project are disabled by default. Use
 	``--pseudo-tags=...`` to enable them.
 
 ``--pseudo-tags=[+|-]names|*``
@@ -119,7 +119,7 @@ Running ctags with ``--list-pseudo-tags`` option lists available types
 of pseudo-tags with short descriptions. This subsection shows hints
 for using notable ones.
 
-``TAG_EXTRA_DESCRIPTION``  (new in Universal-ctags)
+``TAG_EXTRA_DESCRIPTION``  (new in Universal Ctags)
 	Indicates the names and descriptions of enabled extras::
 
 	  !_TAG_EXTRA_DESCRIPTION	{extra-name}	/description/
@@ -142,7 +142,7 @@ for using notable ones.
 	A client tool can know "{anonymous}", "{fileScope}", "{pseudo}",
 	and "{subparser}" extras are enabled from the output.
 
-``TAG_FIELD_DESCRIPTION``  (new in Universal-ctags)
+``TAG_FIELD_DESCRIPTION``  (new in Universal Ctags)
 	Indicates the names and descriptions of enabled fields::
 
 	  !_TAG_FIELD_DESCRIPTION	{field-name}	/description/
@@ -169,7 +169,7 @@ for using notable ones.
 	The fields are common in languages. In addition to the common fields,
 	the tool can known "{macrodef}" field of C language is also enabled.
 
-``TAG_FILE_ENCODING``  (new in Universal-ctags)
+``TAG_FILE_ENCODING``  (new in Universal Ctags)
 	TBW
 
 ``TAG_FILE_FORMAT``
@@ -178,7 +178,7 @@ for using notable ones.
 ``TAG_FILE_SORTED``
 	See also :ref:`tags(5) <tags(5)>`.
 
-``TAG_KIND_DESCRIPTION`` (new in Universal-ctags)
+``TAG_KIND_DESCRIPTION`` (new in Universal Ctags)
 	Indicates the names and descriptions of enabled kinds::
 
 	  !_TAG_KIND_DESCRIPTION!{language-name}	{kind-letter},{kind-name}	/description/
@@ -202,19 +202,22 @@ for using notable ones.
 	A client tool can know "{function}", "{member}", and "{variable}"
 	kinds of C language are enabled from the output.
 
-``TAG_KIND_SEPARATOR`` (new in Universal-ctags)
+``TAG_KIND_SEPARATOR`` (new in Universal Ctags)
 	TBW
 
-``TAG_OUTPUT_FILESEP`` (new in Universal-ctags)
+``TAG_OUTPUT_EXCMD`` (new in Universal Ctags)
+	Indicates the specified type of EX command with ``--excmd`` option.
+
+``TAG_OUTPUT_FILESEP`` (new in Universal Ctags)
 	TBW
 
-``TAG_OUTPUT_MODE`` (new in Universal-ctags)
+``TAG_OUTPUT_MODE`` (new in Universal Ctags)
 	TBW
 
-``TAG_PATTERN_LENGTH_LIMIT`` (new in Universal-ctags)
+``TAG_PATTERN_LENGTH_LIMIT`` (new in Universal Ctags)
 	TBW
 
-``TAG_PROC_CWD`` (new in Universal-ctags)
+``TAG_PROC_CWD`` (new in Universal Ctags)
 	Indicates the working directory of ctags during processing.
 
 	This pseudo-tag helps a client tool solve the absolute paths for
@@ -237,6 +240,15 @@ for using notable ones.
 
 ``TAG_PROGRAM_NAME``
 	TBW
+
+``TAG_ROLE_DESCRIPTION`` (new in Universal Ctags)
+	Indicates the names and descriptions of enabled roles::
+
+	  !_TAG_ROLE_DESCRIPTION!{language-name}!{kind-name}	{role-name}	/description/
+
+	If your tool relies on some roles, refer to the pseudo-tags of
+	this type. Note that a role owned by a disabled kind is not listed
+	even if the role itself is enabled.
 
 REDUNDANT-KINDS
 ---------------
@@ -300,6 +312,12 @@ Lisps:
 Notice that even when the client tool uses this method, ``'`` still needs to be
 replaced by ``'"'"'`` to prevent broken expressions and shell injection.
 
+Another thing to notice is that missing fields are represented by ``#f``, and
+applying string operators to them will produce an error. You should always
+check if a field is missing before applying string operators. See the
+"Filtering" section in :ref:`readtags(1) <readtags(1)>` to know how to do this. Run "readtags -H
+filter" to see which operators take string arguments.
+
 Parse Readtags Output
 ~~~~~~~~~~~~~~~~~~~~~
 In the output of readtags, tabs can appear in all field values (e.g., the tag
@@ -308,29 +326,127 @@ fields. Client tools should use the ``-E`` option, which keeps the escape
 sequences in the tags file, so the only field that could contain tabs is the
 pattern field.
 
-Client tools could then split the line using the following steps:
+The pattern field could:
+
+- Use a line number. It will look like ``number;"`` (e.g. ``10;"``).
+- Use a search pattern. It will look like ``/pattern/;"`` or ``?pattern?;"``.
+  Notice that the search pattern could contain tabs.
+- Combine these two, like ``number;/pattern/;"`` or ``number;?pattern?;"``.
+
+These are true for tags files using extended format, which is the default one.
+The legacy format (i.e. ``--format=1``) doesn't include the semicolons. It's
+old and barely used, so we won't discuss it here.
+
+Client tools could split the line using the following steps:
 
 * Find the first 2 tabs in the line, so we get the name and input field.
-* From the 2nd tab
+* From the 2nd tab:
 
-  * If a "/" follows, then the pattern delimiter is "/".
-  * If a "?" follows, then the pattern delimiter is "?".
-  * If a number follows, then if after the end of the number is a ";/", then
-    the pattern delimiter is "/"; If it's a ";?", then the delimiter is "?".
+  * If a ``/`` follows, then the pattern delimiter is ``/``.
+  * If a ``?`` follows, then the pattern delimiter is ``?``.
+  * If a number follows, then:
 
-* Find the 3rd tab, and count the delimiters between it and the 2nd tab. Notice
-  that delimiters can be escaped, so only the ones with a even number
-  (including 0) of backslashes before should be counted.
-* If there are even numbers of delimiters, then the 3rd tab is the end of the
-  pattern. If not, keep searching tabs forward until this condition is
-  satisfied.
+    * If a ``;/`` follows the number, then the delimiter is ``/``.
+    * If a ``;?`` follows the number, then the delimiter is ``?``.
+    * If a ``;"`` follows the number, then the field uses only line number, and
+      there's no pattern delimiter (since there's no regex pattern). In this
+      case the pattern field ends at the 3rd tab.
+
+* After the opening delimiter, find the next unescaped pattern delimiter, and
+  that's the closing delimiter. It will be followed by ``;"`` and then a tab.
+  That's the end of the pattern field. By "unescaped pattern delimiter", we
+  mean there's an even number (including 0) of backslashes before it.
 * From here, split the rest of the line into fields by tabs.
 
 Then, the escape sequences in fields other than the pattern field should be
 translated. See "Proposal" in :ref:`tags(5) <tags(5)>` to know about all the escape sequences.
-The pattern field needs no special treatment. It can be directly used by
-editors supporting Ex commands.
+
+Make Use of the Pattern Field
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The pattern field specifies how to find a tag in its source file. The code
+generating this field seems to have a long history, so there are some pitfalls
+and it's a bit hard to handle. A client tool could simply require the ``line:``
+field and jump to the line it specifies, to avoid using the pattern field. But
+anyway, we'll discuss how to make the best use of it here.
+
+You should take the words here merely as suggestions, and not standards. A
+client tool could definitely develop better (or simpler) ways to use the
+pattern field.
+
+From the last section, we know the pattern field could contain a line number
+and a search pattern. When it only contains the line number, handling it is
+easy: you simply go to that line.
+
+The search pattern resembles an EX command, but as we'll see later, it's
+actually not a valid one, so some manual work are required to process it.
+
+The search pattern could look like ``/pat/``, called "forward search pattern",
+or ``?pat?``, called "backward search pattern". Using a search pattern means
+even if the source file is updated, as long as the part containing the tag
+doesn't change, we could still locate the tag correctly by searching.
+
+When the pattern field only contains the search pattern, you just search for
+it. The search direction (forward/backward) doesn't matter, as it's decided
+solely by whether the ``-B`` option is enabled, and not the actual context. You
+could always start the search from say the beginning of the file.
+
+When both the search pattern and the line number are presented, you could make
+good use of the line number, by going to the line first, then searching for the
+nearest occurence of the pattern. A way to do this is to search both forward
+and backward for the pattern, and when there is a occurence on both sides, go
+to the nearer one.
+
+What's good about this is when there are multiple identical lines in the source
+file (e.g. the COMMON block in Fortran), this could help us find the correct
+one, even after the source file is updated and the tag position is shifted by a
+few lines.
+
+Now let's discuss how to search for the pattern. After you trim the ``/`` or
+``?`` around it, the pattern resembles a regex pattern. It should be a regex
+pattern, as required by being a valid EX command, but it's actually not, as
+you'll see below.
+
+It could begin with a ``^``, which means the pattern starts from the beginning
+of a line. It could also end with an *unescaped* ``$`` which means the pattern
+ends at the end of a line. Let's keep this information, and trim them too.
+
+Now the remaining part is the actual string containing the tag. Some characters
+are escaped:
+
+* ``\``.
+* ``$``, but only at the end of the string.
+* ``/``, but only in forward search patterns.
+* ``?``, but only in backward search patterns.
+
+You need to unescape these to get the literal string. Now you could convert
+this literal string to a regexp that matches it (by escaping, like
+``re.escape`` in Python or ``regexp-quote`` in Elisp), and assemble it with
+``^`` or ``$`` if the pattern originally has it, and finally search for the tag
+using this regexp.
+
+Remark: About a Previous Format of the Pattern Field
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some earlier versions of Universal Ctags, the line number in the pattern
+field is the actual line number minus one, for forward search patterns; or plus
+one, for backward search patterns. The idea is to resemble an EX command: you
+go to the line, then search forward/backward for the pattern, and you can
+always find the correct one. But this denies the purpose of using a search
+pattern: to tolerate file updates. For example, the tag is at line 50,
+according to this scheme, the pattern field should be::
+
+	49;/pat/;"
+
+Then let's assume that some code above are removed, and the tag is now at
+line 45. Now you can't find it if you search forward from line 49.
+
+Due to this reason, Universal Ctags turns to use the actual line number. A
+client tool could distinguish them by the ``TAG_OUTPUT_EXCMD`` pseudo tag, it's
+"combine" for the old scheme, and "combineV2" for the present scheme. But
+probably there's no need to treat them differently, since "search for the
+nearest occurence from the line" gives good result on both schemes.
 
 SEE ALSO
 --------
-:ref:`ctags(1) <ctags(1)>`, :ref:`ctags-incompatibilities(7) <ctags-incompatibilities(7)>`, :ref:`tags(5) <tags(5)>`, :ref:`readtags(1) <readtags(1)>`
+:ref:`ctags(1) <ctags(1)>`, :ref:`ctags-lang-python(7) <ctags-lang-python(7)>`, :ref:`ctags-incompatibilities(7) <ctags-incompatibilities(7)>`, :ref:`tags(5) <tags(5)>`, :ref:`readtags(1) <readtags(1)>`

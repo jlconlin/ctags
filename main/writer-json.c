@@ -135,8 +135,31 @@ static void addParserFields (json_t *response, const tagEntryInfo *const tag)
 		if (! isFieldEnabled (ftype))
 			continue;
 
-		const char *str = escapeFieldValueRaw (tag, ftype, i);
-		json_object_set_new (response, getFieldName (ftype), json_string (str));
+		unsigned int dt = getFieldDataType (ftype);
+		json_t *o;
+		if (dt & FIELDTYPE_STRING)
+		{
+			const char *str = escapeFieldValueRaw (tag, ftype, i);
+			if (dt & FIELDTYPE_BOOL && str[0] == '\0')
+				o = json_false ();
+			else
+				o = json_string (str);
+		}
+		else if (dt & FIELDTYPE_INTEGER)
+		{
+			/* NOT IMPLEMENTED YET */
+			AssertNotReached ();
+			o = json_null ();
+		}
+		else if (dt & FIELDTYPE_BOOL)
+			o = json_true ();
+		else
+		{
+			AssertNotReached ();
+			o = json_null ();
+		}
+
+		json_object_set_new (response, getFieldName (ftype), o);
 	}
 }
 
@@ -149,15 +172,15 @@ static void addExtensionFields (json_t *response, const tagEntryInfo *const tag)
 	   That cannot be changed to keep the compatibility of tags file format.
 	   Use FIELD_KIND_KEY instead */
 	if (isFieldEnabled (FIELD_KIND) || isFieldEnabled (FIELD_KIND_LONG))
-		enableField (FIELD_KIND_KEY, true, false);
+		enableField (FIELD_KIND_KEY, true);
 
 	/* FIELD_SCOPE has no name; getFieldName (FIELD_KIND_KEY) returns NULL.
 	   That cannot be changed to keep the compatibility of tags file format.
 	   Use FIELD_SCOPE_KEY and FIELD_SCOPE_KIND_LONG instead. */
 	if (isFieldEnabled (FIELD_SCOPE))
 	{
-		enableField (FIELD_SCOPE_KEY, true, false);
-		enableField (FIELD_SCOPE_KIND_LONG, true, false);
+		enableField (FIELD_SCOPE_KEY, true);
+		enableField (FIELD_SCOPE_KIND_LONG, true);
 	}
 
 	for (k = FIELD_EXTENSION_START; k <= FIELD_BUILTIN_LAST; k++)

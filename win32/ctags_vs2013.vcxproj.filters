@@ -213,6 +213,9 @@
     <ClCompile Include="..\optlib\markdown.c">
       <Filter>Source Files\optlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\optlib\meson.c">
+      <Filter>Source Files\optlib</Filter>
+    </ClCompile>
     <ClCompile Include="..\optlib\passwd.c">
       <Filter>Source Files\optlib</Filter>
     </ClCompile>
@@ -232,6 +235,12 @@
       <Filter>Source Files\optlib</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\ada.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\abaqus.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\abc.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\ant.c">
@@ -378,6 +387,12 @@
     <ClCompile Include="..\parsers\go.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
+    <ClCompile Include="..\parsers\haskell.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\haxe.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
     <ClCompile Include="..\parsers\html.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
@@ -394,6 +409,9 @@
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\json.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\julia.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\ldscript.c">
@@ -414,9 +432,6 @@
     <ClCompile Include="..\parsers\matlab.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
-    <ClCompile Include="..\parsers\moose.c">
-      <Filter>Source Files\Parsers</Filter>
-    </ClCompile>
     <ClCompile Include="..\parsers\myrddin.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
@@ -435,6 +450,12 @@
     <ClCompile Include="..\parsers\perl.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
+    <ClCompile Include="..\parsers\perl-function-parameters.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\perl-moose.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
     <ClCompile Include="..\parsers\perl6.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
@@ -451,6 +472,12 @@
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\pythonloggingconfig.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\r-r6class.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\r-s4class.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\r.c">
@@ -505,6 +532,9 @@
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\ttcn.c">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\parsers\txt2tags.c">
       <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="..\parsers\typescript.c">

@@ -46,6 +46,13 @@ IN_SOURCE_FILES = \
 	ctags-optlib.7.rst.in \
 	ctags-incompatibilities.7.rst.in \
 	ctags-client-tools.7.rst.in \
+	ctags-faq.7.rst.in \
+	\
+	ctags-lang-julia.7.rst.in \
+	ctags-lang-python.7.rst.in \
+	ctags-lang-verilog.7.rst.in \
+	ctags-lang-inko.7.rst.in \
+	ctags-lang-r.7.rst.in \
 	\
 	readtags.1.rst.in \
 	\
@@ -92,8 +99,10 @@ endif
 
 update-docs: $(doc_files)
 
+# Delete the line "------" in the first 10 lines of ../docs/man/*.rst to
+# suppress unnecessary section indices.
 ../docs/man/%.rst: %.rst
-	sed $(reppat) < $< > $@
+	sed $(reppat) -e '1,10s/^-*$$//' < $< > $@
 
 %.rst: %.rst.in
 ifeq ($(QUICK),)

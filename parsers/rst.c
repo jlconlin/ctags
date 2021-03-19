@@ -37,6 +37,7 @@ typedef enum {
 	K_SUBSUBSECTION,
 	K_CITATION,
 	K_TARGET,
+	K_SUBSTDEF,
 	SECTION_COUNT
 } rstKind;
 
@@ -47,6 +48,7 @@ static kindDefinition RstKinds[] = {
 	{ true, 't', "subsubsection", "subsubsections" },
 	{ true, 'C', "citation",      "citations"},
 	{ true, 'T', "target",        "targets" },
+	{ true, 'd', "substdef",      "substitute definitions" },
 };
 
 typedef enum {
@@ -337,6 +339,17 @@ static void findRstTags (void)
 				continue;
 			}
 		}
+		else if ((markup_line = is_markup_line (line, '|')) != NULL)
+		{
+			/* Hanle .. |substitute definition|
+			 * https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#substitution-definitions
+			 */
+			if (capture_markup (markup_line, '|', K_SUBSTDEF) != CORK_NIL)
+			{
+				vStringClear (name);
+				continue;
+			}
+		}
 
 		int line_len = strlen((const char*) line);
 		int name_len_bytes = vStringLength(name);
@@ -379,10 +392,15 @@ extern parserDefinition* RstParser (void)
 {
 	static const char *const extensions [] = { "rest", "reST", "rst", NULL };
 	parserDefinition* const def = parserNew ("ReStructuredText");
+	static const char *const aliases[] = {
+		"rst",					/* The name of emacs's mode */
+		NULL
+	};
 
 	def->kindTable = RstKinds;
 	def->kindCount = ARRAY_SIZE (RstKinds);
 	def->extensions = extensions;
+	def->aliases = aliases;
 	def->parser = findRstTags;
 
 	def->fieldTable = RstFields;
